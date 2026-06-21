@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "matching.h"
 #include "order_book.h"
 
 int main(void) {
@@ -27,7 +28,13 @@ int main(void) {
 	addOrder(&book, sell_order_2);
 	addOrder(&book, sell_order_3);
 
-	printf("\n");
+	printf("\nBEFORE MATCHING\n");
+	printOrderBook(&book);
+
+	printf("\nMATCHES\n");
+	processMatches(&book);
+
+	printf("\nAFTER MATCHING\n");
 	printOrderBook(&book);
 
 	return 0;
