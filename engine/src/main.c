@@ -1,12 +1,13 @@
 #include <stdio.h>
 
+#include "benchmark.h"
 #include "csv_loader.h"
-#include "matching.h"
 #include "order_book.h"
 #include "trade.h"
 
 int main(void) {
 	OrderBook book;
+	BenchmarkResult benchmark_result;
 	int orders_loaded;
 
 	initOrderBook(&book);
@@ -17,12 +18,17 @@ int main(void) {
 	printf("\nBEFORE MATCHING\n");
 	printOrderBook(&book);
 
-	processMatches(&book);
+	benchmark_result = runBenchmark(&book);
+	printf("\nBENCHMARK RESULTS\n\n");
+	printf("Orders Processed: %d\n", benchmark_result.orders_processed);
+	printf("Execution Time (ms): %.3f\n", benchmark_result.execution_time_ms);
+	printf("Throughput (ops/sec): %.3f\n", benchmark_result.throughput_ops_sec);
+	printf("Average Latency (us): %.3f\n", benchmark_result.avg_latency_us);
 
 	printf("\nTrades Executed\n");
 	printTradeHistory();
 
-	printf("\nAFTER MATCHING\n");
+	printf("\nFinal Order Book\n");
 	printOrderBook(&book);
 
 	return 0;
