@@ -2,6 +2,26 @@
 
 #include "order_book.h"
 
+static void removeBuyOrderAt(OrderBook *book, int order_index) {
+    int index;
+
+    for (index = order_index + 1; index < book->buy_count; ++index) {
+        book->buy_orders[index - 1] = book->buy_orders[index];
+    }
+
+    --book->buy_count;
+}
+
+static void removeSellOrderAt(OrderBook *book, int order_index) {
+    int index;
+
+    for (index = order_index + 1; index < book->sell_count; ++index) {
+        book->sell_orders[index - 1] = book->sell_orders[index];
+    }
+
+    --book->sell_count;
+}
+
 void sortBuyOrders(OrderBook *book) {
     int current_index;
 
@@ -74,6 +94,30 @@ int addOrder(OrderBook *book, Order order) {
         book->sell_orders[book->sell_count++] = order;
         sortSellOrders(book);
         return 1;
+    }
+
+    return 0;
+}
+
+int cancelOrder(OrderBook *book, int order_id) {
+    int index;
+
+    if (book == NULL) {
+        return 0;
+    }
+
+    for (index = 0; index < book->buy_count; ++index) {
+        if (book->buy_orders[index].order_id == order_id) {
+            removeBuyOrderAt(book, index);
+            return 1;
+        }
+    }
+
+    for (index = 0; index < book->sell_count; ++index) {
+        if (book->sell_orders[index].order_id == order_id) {
+            removeSellOrderAt(book, index);
+            return 1;
+        }
     }
 
     return 0;

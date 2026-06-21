@@ -14,6 +14,7 @@ typedef struct OrderBook {
 
 void initOrderBook(OrderBook *book);
 int addOrder(OrderBook *book, Order order);
+int cancelOrder(OrderBook *book, int order_id);
 void sortBuyOrders(OrderBook *book);
 void sortSellOrders(OrderBook *book);
 void printOrderBook(OrderBook *book);
