@@ -1,0 +1,20 @@
+# Build files
+*.exe
+*.o
+*.out
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# Benchmark output
+benchmark.csv
+
+# Trade output
+trades.csv
+
+# OS files
+.DS_Store
+Thumbs.db
