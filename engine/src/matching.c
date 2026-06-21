@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "matching.h"
+#include "trade.h"
 
 static void removeTopBuyOrder(OrderBook *book) {
     int index;
@@ -59,6 +60,8 @@ int matchOrders(OrderBook *book) {
            trade.sell_order_id,
            trade.trade_price,
            trade.quantity);
+
+    addTrade(trade.buy_order_id, trade.sell_order_id, trade.trade_price, trade.quantity);
 
     if (book->buy_orders[0].quantity == 0) {
         removeTopBuyOrder(book);

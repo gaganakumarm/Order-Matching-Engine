@@ -2,6 +2,7 @@
 
 #include "matching.h"
 #include "order_book.h"
+#include "trade.h"
 
 int main(void) {
 	OrderBook book;
@@ -13,6 +14,7 @@ int main(void) {
 	Order sell_order_3 = createOrder(6, 'S', 101.90, 60);
 
 	initOrderBook(&book);
+	initializeTradeHistory();
 
 	printf("BUY order 1 valid: %s\n", isValidOrder(buy_order_1.side, buy_order_1.price, buy_order_1.quantity) ? "yes" : "no");
 	printf("BUY order 2 valid: %s\n", isValidOrder(buy_order_2.side, buy_order_2.price, buy_order_2.quantity) ? "yes" : "no");
@@ -36,6 +38,9 @@ int main(void) {
 
 	printf("\nAFTER MATCHING\n");
 	printOrderBook(&book);
+
+	printf("\n");
+	printTradeHistory();
 
 	return 0;
 }
