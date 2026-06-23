@@ -3,7 +3,8 @@
 
 #include "order.h"
 
-#define MAX_ORDERS_PER_SIDE 1000
+#define MAX_ORDERS 100000
+#define MAX_ORDERS_PER_SIDE MAX_ORDERS
 
 typedef struct OrderBook {
     Order buy_orders[MAX_ORDERS_PER_SIDE];

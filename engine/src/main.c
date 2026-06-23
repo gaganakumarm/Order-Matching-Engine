@@ -6,13 +6,13 @@
 #include "trade.h"
 
 int main(void) {
-	OrderBook book;
+	static OrderBook book;
 	BenchmarkResult benchmark_result;
 	int orders_loaded;
 
 	initOrderBook(&book);
 	initializeTradeHistory();
-	orders_loaded = loadOrdersFromCSV("data/orders.csv", &book);
+	orders_loaded = loadOrdersFromCSV("data/orders_large.csv", &book);
 
 	printf("Orders Loaded: %d\n", orders_loaded);
 	printf("\nBEFORE MATCHING\n");
