@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import csv
 import json
+import math
+import random
 import re
 import subprocess
 from pathlib import Path
@@ -13,6 +15,7 @@ from typing import Any
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 ENGINE_DIR = PROJECT_ROOT / "engine"
 ENGINE_EXE = ENGINE_DIR / "order_matching_engine.exe"
+ORDERS_LARGE_CSV = ENGINE_DIR / "data" / "orders_large.csv"
 BENCHMARK_CSV = ENGINE_DIR / "benchmark" / "benchmark.csv"
 TRADES_CSV = ENGINE_DIR / "data" / "trades.csv"
 NESTED_TRADES_CSV = ENGINE_DIR / "engine" / "data" / "trades.csv"
@@ -49,6 +52,57 @@ def _sync_trade_csv_if_needed() -> None:
     if NESTED_TRADES_CSV.exists():
         TRADES_CSV.parent.mkdir(parents=True, exist_ok=True)
         TRADES_CSV.write_text(NESTED_TRADES_CSV.read_text(encoding="utf-8"), encoding="utf-8")
+
+
+def generate_market_orders(symbol: str, base_price: float, count: int = 10000) -> dict[str, Any]:
+    normalized_symbol = symbol.strip().upper()
+    if not re.fullmatch(r"[A-Z][A-Z0-9.-]{0,19}", normalized_symbol):
+        return {
+            "success": False,
+            "message": "Invalid symbol. Use letters, numbers, dots, or hyphens.",
+        }
+
+    if not math.isfinite(base_price) or base_price <= 0:
+        return {
+            "success": False,
+            "message": "Invalid base_price. It must be greater than 0.",
+        }
+
+    if count <= 0 or count > 100000:
+        return {
+            "success": False,
+            "message": "Invalid count. It must be between 1 and 100000.",
+        }
+
+    try:
+        ORDERS_LARGE_CSV.parent.mkdir(parents=True, exist_ok=True)
+        with ORDERS_LARGE_CSV.open("w", newline="", encoding="utf-8") as csv_file:
+            writer = csv.writer(csv_file)
+            writer.writerow(["order_id", "side", "price", "quantity"])
+
+            for order_id in range(1, count + 1):
+                side = random.choice(["B", "S"])
+                if side == "B":
+                    price = random.uniform(base_price - 1.00, base_price + 0.20)
+                else:
+                    price = random.uniform(base_price - 0.20, base_price + 1.00)
+
+                writer.writerow([order_id, side, f"{price:.2f}", random.randint(1, 1000)])
+    except OSError as exc:
+        return {
+            "success": False,
+            "message": "Failed to write market-based orders CSV.",
+            "error": str(exc),
+            "file": str(ORDERS_LARGE_CSV),
+        }
+
+    return {
+        "success": True,
+        "symbol": normalized_symbol,
+        "base_price": round(base_price, 2),
+        "orders_generated": count,
+        "file": "engine/data/orders_large.csv",
+    }
 
 
 def run_engine() -> dict[str, Any]:

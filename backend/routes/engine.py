@@ -1,6 +1,8 @@
 from fastapi import APIRouter
+from pydantic import BaseModel, Field
 
 from services.engine_service import (
+    generate_market_orders,
     get_latest_benchmark,
     get_order_book_snapshot,
     get_trades,
@@ -9,6 +11,12 @@ from services.engine_service import (
 
 
 router = APIRouter(tags=["engine"])
+
+
+class MarketOrderRequest(BaseModel):
+    symbol: str
+    base_price: float
+    count: int = Field(default=10000)
 
 
 @router.get("/health")
@@ -28,6 +36,15 @@ def run_matching_engine() -> dict:
         "status": status,
         **result,
     }
+
+
+@router.post("/generate-market-orders")
+def generate_market_based_orders(request: MarketOrderRequest) -> dict:
+    return generate_market_orders(
+        symbol=request.symbol,
+        base_price=request.base_price,
+        count=request.count,
+    )
 
 
 @router.get("/benchmark")

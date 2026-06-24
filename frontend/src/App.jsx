@@ -159,7 +159,7 @@ function App() {
   const [marketPrice, setMarketPrice] = useState(emptyMarketPrice)
   const [marketLoading, setMarketLoading] = useState(false)
   const [marketError, setMarketError] = useState('')
-  const [showArchitecture, setShowArchitecture] = useState(false)
+  const [simulationCompleted, setSimulationCompleted] = useState(false)
 
   const buyOrders = orderBook?.buy_orders ?? []
   const sellOrders = orderBook?.sell_orders ?? []
@@ -179,11 +179,13 @@ function App() {
   const change = currentPrice - openPrice
   const latestTrades = trades.slice(-10).reverse()
   const benchmarkHistory = useMemo(() => buildBenchmarkHistory(benchmark), [benchmark])
+  const liveBasePrice = toNumber(marketPrice.price, Number.NaN)
+  const hasLiveMarketPrice = Number.isFinite(liveBasePrice) && liveBasePrice > 0
 
   const kpis = [
     {
-      label: 'Orders Processed',
-      value: formatNumber(benchmark.orders_processed, 0),
+      label: 'Trades Generated',
+      value: formatNumber(trades.length, 0),
       tone: 'cyan',
     },
     {
@@ -240,27 +242,48 @@ function App() {
     setMarketError('')
   }
 
-  async function handleFetchMarketPrice(event) {
-    event.preventDefault()
-    const symbol = symbolInput.trim().toUpperCase()
+  function handleResetTerminal() {
+    setBenchmark(emptyBenchmark)
+    setTrades([])
+    setOrderBook({ buy_orders: [], sell_orders: [], buy_count: 0, sell_count: 0 })
+    setSymbolInput('AAPL')
+    setMarketPrice(emptyMarketPrice)
+    setLoading(false)
+    setMarketLoading(false)
+    setSimulationCompleted(false)
+    setInitialLoading(false)
+    resetMessages()
+  }
 
-    if (!symbol) {
-      setMarketError('Enter a market symbol.')
-      return
+  async function fetchMarketPrice(symbol) {
+    const normalizedSymbol = symbol.trim().toUpperCase()
+
+    if (!normalizedSymbol) {
+      throw new Error('Enter a market symbol.')
     }
 
+    const response = await axios.get(
+      `${API_BASE_URL}/market-price/${encodeURIComponent(normalizedSymbol)}`,
+    )
+
+    if (!response.data?.success) {
+      throw new Error(response.data?.message || 'Unable to fetch live price.')
+    }
+
+    setMarketPrice(response.data)
+    setSymbolInput(response.data.symbol)
+    setSimulationCompleted(false)
+
+    return response.data
+  }
+
+  async function handleFetchMarketPrice(event) {
+    event.preventDefault()
     setMarketLoading(true)
     setMarketError('')
 
     try {
-      const response = await axios.get(`${API_BASE_URL}/market-price/${encodeURIComponent(symbol)}`)
-
-      if (!response.data?.success) {
-        throw new Error(response.data?.message || 'Unable to fetch live price.')
-      }
-
-      setMarketPrice(response.data)
-      setSymbolInput(response.data.symbol)
+      await fetchMarketPrice(symbolInput)
     } catch (requestError) {
       const message =
         requestError.response?.data?.message ||
@@ -272,11 +295,33 @@ function App() {
     }
   }
 
+  async function generateMarketOrders(quote) {
+    const basePrice = toNumber(quote.price, Number.NaN)
+    if (!Number.isFinite(basePrice) || basePrice <= 0) {
+      throw new Error('Fetch a valid live price before generating market-based orders.')
+    }
+
+    const response = await axios.post(`${API_BASE_URL}/generate-market-orders`, {
+      symbol: quote.symbol,
+      base_price: basePrice,
+      count: 10000,
+    })
+
+    if (!response.data?.success) {
+      throw new Error(response.data?.message || 'Market-based order generation failed.')
+    }
+
+    return response.data
+  }
+
   async function handleRunEngine() {
     setLoading(true)
+    setMarketLoading(!hasLiveMarketPrice)
     resetMessages()
 
     try {
+      const quote = hasLiveMarketPrice ? marketPrice : await fetchMarketPrice(symbolInput)
+      await generateMarketOrders(quote)
       const runResponse = await axios.post(`${API_BASE_URL}/run-engine`)
 
       if (runResponse.data?.status !== 'success') {
@@ -284,11 +329,17 @@ function App() {
       }
 
       await fetchDashboardData()
-      setLastRunStatus('ENGINE RUN COMPLETE. MARKET DATA REFRESHED.')
-    } catch {
-      setError('API connection failed. Start FastAPI on http://127.0.0.1:8000')
+      setSimulationCompleted(true)
+      setLastRunStatus('Market simulation completed successfully.')
+    } catch (requestError) {
+      const message =
+        requestError.response?.data?.message ||
+        requestError.message ||
+        'Market simulation failed. Start FastAPI on http://127.0.0.1:8000'
+      setError(message)
     } finally {
       setLoading(false)
+      setMarketLoading(false)
     }
   }
 
@@ -352,62 +403,86 @@ function App() {
               {marketLoading ? 'FETCHING' : 'FETCH LIVE PRICE'}
             </button>
           </form>
-          <button className="run-button" type="button" onClick={handleRunEngine} disabled={loading}>
-            {loading ? 'RUNNING' : 'RUN ENGINE'}
+          <button className="run-button" type="button" onClick={handleRunEngine} disabled={loading || marketLoading}>
+            {loading ? 'RUNNING SIMULATION' : 'RUN MARKET SIMULATION'}
           </button>
-          <button
-            className="reset-button"
-            type="button"
-            onClick={() => setShowArchitecture(true)}
-          >
-            ARCHITECTURE
-          </button>
-          <button className="reset-button" type="button" onClick={resetMessages}>
+          <button className="reset-button" type="button" onClick={handleResetTerminal}>
             RESET
           </button>
         </section>
       </header>
 
-      <section className="live-price-panel">
-        <div className="live-price-primary">
-          <span>Live Market Reference</span>
-          <strong>{marketPrice.symbol || symbolInput || 'AAPL'}</strong>
-        </div>
-        <div className="live-price-metrics">
-          <div>
-            <span>Live Price</span>
-            <strong>{formatMoney(marketPrice.price)}</strong>
+      <section className="workflow-panels">
+        <article className="workflow-panel cyan">
+          <div className="workflow-panel-title">
+            <div>
+              <span>Step 01</span>
+              <h2>Live Market Reference</h2>
+            </div>
+            {hasLiveMarketPrice ? <strong className="mode-badge cyan">LIVE DATA MODE ACTIVE</strong> : null}
           </div>
-          <div>
-            <span>Change</span>
-            <strong className={toNumber(marketPrice.change, 0) >= 0 ? 'positive' : 'negative'}>
-              {formatSigned(marketPrice.change)}
-            </strong>
+          <dl className="workflow-metrics">
+            <div>
+              <dt>Symbol</dt>
+              <dd>{marketPrice.symbol || symbolInput || 'AAPL'}</dd>
+            </div>
+            <div>
+              <dt>Current Price</dt>
+              <dd>{formatMoney(marketPrice.price)}</dd>
+            </div>
+            <div>
+              <dt>Change %</dt>
+              <dd className={toNumber(marketPrice.change_percent, 0) >= 0 ? 'positive' : 'negative'}>
+                {formatSignedPercent(marketPrice.change_percent)}
+              </dd>
+            </div>
+            <div>
+              <dt>High</dt>
+              <dd>{formatMoney(marketPrice.high)}</dd>
+            </div>
+            <div>
+              <dt>Low</dt>
+              <dd>{formatMoney(marketPrice.low)}</dd>
+            </div>
+            <div>
+              <dt>Source</dt>
+              <dd>Finnhub</dd>
+            </div>
+          </dl>
+          <p>Real market information only. No orders are generated. No trades are executed.</p>
+        </article>
+
+        <article className="workflow-panel green">
+          <div className="workflow-panel-title">
+            <div>
+              <span>Step 02</span>
+              <h2>Market Simulation Engine</h2>
+            </div>
+            {simulationCompleted ? <strong className="mode-badge green">SIMULATION COMPLETED</strong> : null}
           </div>
-          <div>
-            <span>Change %</span>
-            <strong className={toNumber(marketPrice.change_percent, 0) >= 0 ? 'positive' : 'negative'}>
-              {formatSignedPercent(marketPrice.change_percent)}
-            </strong>
-          </div>
-          <div>
-            <span>High</span>
-            <strong>{formatMoney(marketPrice.high)}</strong>
-          </div>
-          <div>
-            <span>Low</span>
-            <strong>{formatMoney(marketPrice.low)}</strong>
-          </div>
-          <div>
-            <span>Open</span>
-            <strong>{formatMoney(marketPrice.open)}</strong>
-          </div>
-          <div>
-            <span>Previous Close</span>
-            <strong>{formatMoney(marketPrice.previous_close)}</strong>
-          </div>
-        </div>
-        <p>Live price is for market reference only. Matching engine uses simulated orders.</p>
+          <dl className="workflow-metrics">
+            <div>
+              <dt>Orders Generated</dt>
+              <dd>{formatNumber(benchmark.orders_processed, 0)}</dd>
+            </div>
+            <div>
+              <dt>Engine Type</dt>
+              <dd>C17 Price-Time Priority</dd>
+            </div>
+            <div>
+              <dt>Trades Generated</dt>
+              <dd>{formatNumber(trades.length, 0)}</dd>
+            </div>
+            <div>
+              <dt>Benchmark Available</dt>
+              <dd>{benchmark.execution_time_ms === '-' ? 'No' : 'Yes'}</dd>
+            </div>
+          </dl>
+          <p>
+            Generates synthetic orders around the live market price. Executes matching using the C17 engine. Creates
+            trades, benchmarks, and order book snapshots.
+          </p>
+        </article>
       </section>
 
       {error ? <div className="terminal-alert error">{error}</div> : null}
@@ -676,36 +751,6 @@ function App() {
         </section>
       </section>
 
-      {showArchitecture ? (
-        <div className="modal-backdrop" role="presentation" onClick={() => setShowArchitecture(false)}>
-          <section
-            className="architecture-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="architecture-title"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="panel-title">
-              <div>
-                <span>System Flow</span>
-                <h2 id="architecture-title">ARCHITECTURE</h2>
-              </div>
-              <button className="reset-button" type="button" onClick={() => setShowArchitecture(false)}>
-                CLOSE
-              </button>
-            </div>
-            <pre className="architecture-flow">{`React Dashboard
-        ↓
-FastAPI Backend
-        ↓
-C17 Matching Engine
-        ↓
-CSV Trades
-JSON Snapshot
-Benchmark Results`}</pre>
-          </section>
-        </div>
-      ) : null}
 
       <footer className="system-footer">
         <span>OME TERMINAL ONLINE</span>
