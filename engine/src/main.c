@@ -19,6 +19,8 @@ int main(void) {
 	printOrderBook(&book);
 
 	benchmark_result = runBenchmark(&book);
+	saveOrderBookSnapshot(&book);
+
 	printf("\nBENCHMARK RESULTS\n\n");
 	printf("Orders Processed: %d\n", benchmark_result.orders_processed);
 	printf("Execution Time (ms): %.3f\n", benchmark_result.execution_time_ms);

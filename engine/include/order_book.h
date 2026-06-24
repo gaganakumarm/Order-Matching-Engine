@@ -19,5 +19,6 @@ int cancelOrder(OrderBook *book, int order_id);
 void sortBuyOrders(OrderBook *book);
 void sortSellOrders(OrderBook *book);
 void printOrderBook(OrderBook *book);
+void saveOrderBookSnapshot(OrderBook *book);
 
 #endif /* ORDER_BOOK_H */

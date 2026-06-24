@@ -2,6 +2,8 @@
 
 #include "order_book.h"
 
+#define ORDER_BOOK_SNAPSHOT_PATH "data/order_book_snapshot.json"
+
 static void removeBuyOrderAt(OrderBook *book, int order_index) {
     int index;
 
@@ -147,4 +149,53 @@ void printOrderBook(OrderBook *book) {
                book->sell_orders[index].price,
                book->sell_orders[index].quantity);
     }
+}
+
+void saveOrderBookSnapshot(OrderBook *book) {
+    FILE *file;
+    int index;
+
+    if (book == NULL) {
+        return;
+    }
+
+    file = fopen(ORDER_BOOK_SNAPSHOT_PATH, "w");
+    if (file == NULL) {
+        return;
+    }
+
+    fprintf(file, "{\n");
+
+    fprintf(file, "  \"buy_orders\": [\n");
+    for (index = 0; index < book->buy_count; ++index) {
+        fprintf(file,
+                "    {\n"
+                "      \"order_id\": %d,\n"
+                "      \"price\": %.2f,\n"
+                "      \"quantity\": %d\n"
+                "    }%s\n",
+                book->buy_orders[index].order_id,
+                book->buy_orders[index].price,
+                book->buy_orders[index].quantity,
+                (index < book->buy_count - 1) ? "," : "");
+    }
+    fprintf(file, "  ],\n");
+
+    fprintf(file, "  \"sell_orders\": [\n");
+    for (index = 0; index < book->sell_count; ++index) {
+        fprintf(file,
+                "    {\n"
+                "      \"order_id\": %d,\n"
+                "      \"price\": %.2f,\n"
+                "      \"quantity\": %d\n"
+                "    }%s\n",
+                book->sell_orders[index].order_id,
+                book->sell_orders[index].price,
+                book->sell_orders[index].quantity,
+                (index < book->sell_count - 1) ? "," : "");
+    }
+    fprintf(file, "  ]\n");
+
+    fprintf(file, "}\n");
+    fclose(file);
 }

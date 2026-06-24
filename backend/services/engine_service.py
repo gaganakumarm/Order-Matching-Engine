@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import re
 import subprocess
 from pathlib import Path
@@ -16,6 +17,7 @@ BENCHMARK_CSV = ENGINE_DIR / "benchmark" / "benchmark.csv"
 TRADES_CSV = ENGINE_DIR / "data" / "trades.csv"
 NESTED_TRADES_CSV = ENGINE_DIR / "engine" / "data" / "trades.csv"
 ORDER_BOOK_SNAPSHOT_CSV = ENGINE_DIR / "data" / "order_book_snapshot.csv"
+ORDER_BOOK_SNAPSHOT_JSON = ENGINE_DIR / "data" / "order_book_snapshot.json"
 ORDER_BOOK_SNAPSHOT_TXT = ENGINE_DIR / "data" / "order_book_snapshot.txt"
 
 
@@ -127,6 +129,13 @@ def get_trades() -> dict[str, Any]:
 
 
 def get_order_book_snapshot() -> dict[str, Any]:
+    if ORDER_BOOK_SNAPSHOT_JSON.exists():
+        return {
+            "success": True,
+            "format": "json",
+            "snapshot": json.loads(ORDER_BOOK_SNAPSHOT_JSON.read_text(encoding="utf-8")),
+        }
+
     if ORDER_BOOK_SNAPSHOT_CSV.exists():
         return {
             "success": True,
@@ -145,6 +154,7 @@ def get_order_book_snapshot() -> dict[str, Any]:
         "success": False,
         "message": "Order book snapshot file does not exist yet.",
         "expected_paths": [
+            str(ORDER_BOOK_SNAPSHOT_JSON),
             str(ORDER_BOOK_SNAPSHOT_CSV),
             str(ORDER_BOOK_SNAPSHOT_TXT),
         ],
