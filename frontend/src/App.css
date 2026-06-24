@@ -1,0 +1,743 @@
+:root {
+  color: #f5f7fb;
+  background: #050914;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #050914;
+}
+
+button {
+  font: inherit;
+}
+
+.terminal {
+  width: 100%;
+  min-height: 100vh;
+  padding: 8px;
+  background:
+    linear-gradient(rgba(31, 42, 61, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 42, 61, 0.18) 1px, transparent 1px),
+    #050914;
+  background-size: 32px 32px;
+}
+
+.topbar,
+.metric-box,
+.panel,
+.terminal-alert {
+  border: 1px solid #1f2a3d;
+  border-radius: 4px;
+  background: #0b1220;
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(360px, 0.8fr) minmax(320px, auto);
+  gap: 8px;
+  align-items: center;
+  min-height: 58px;
+  padding: 8px 10px;
+}
+
+.topbar-left,
+.topbar-center,
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-center {
+  justify-content: center;
+}
+
+.topbar-center > div {
+  min-width: 150px;
+  border-left: 1px solid #1f2a3d;
+  padding-left: 12px;
+}
+
+.topbar-right {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.symbol-form {
+  display: grid;
+  grid-template-columns: auto 92px auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.symbol-form label {
+  color: #7f8da3;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.symbol-form input {
+  width: 92px;
+  border: 1px solid #1f2a3d;
+  border-radius: 3px;
+  padding: 8px 9px;
+  color: #f5f7fb;
+  background: #07101e;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.symbol-form input:focus {
+  border-color: #00d4ff;
+  outline: 0;
+}
+
+.version-tag {
+  border: 1px solid rgba(0, 212, 255, 0.48);
+  border-radius: 3px;
+  padding: 5px 7px;
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.08);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+.topbar h1 {
+  margin-bottom: 1px;
+  color: #f5f7fb;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.topbar p,
+.topbar span,
+.panel-title span,
+.metric-box span,
+dt {
+  color: #7f8da3;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.topbar strong,
+.topbar time {
+  display: block;
+  color: #f5f7fb;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.82rem;
+}
+
+.status-active,
+.status-ok {
+  color: #00ff88 !important;
+}
+
+.run-button,
+.quote-button,
+.reset-button {
+  border: 1px solid #1f2a3d;
+  border-radius: 3px;
+  padding: 8px 10px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.run-button {
+  color: #06110c;
+  background: #00ff88;
+}
+
+.quote-button {
+  color: #06110c;
+  background: #00d4ff;
+}
+
+.run-button:disabled,
+.quote-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.reset-button {
+  color: #f5f7fb;
+  background: #111a2a;
+}
+
+.reset-button:hover {
+  border-color: #00d4ff;
+  color: #00d4ff;
+}
+
+.terminal-alert {
+  margin-top: 8px;
+  padding: 8px 10px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.78rem;
+}
+
+.terminal-alert.error {
+  border-color: rgba(255, 69, 96, 0.5);
+  color: #ff8a9b;
+  background: rgba(255, 69, 96, 0.08);
+}
+
+.terminal-alert.success {
+  border-color: rgba(0, 255, 136, 0.42);
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.07);
+}
+
+.terminal-alert.info {
+  border-color: rgba(0, 212, 255, 0.4);
+  color: #00d4ff;
+}
+
+.live-price-panel {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.45fr) minmax(0, 1.8fr);
+  gap: 0;
+  margin-top: 8px;
+  border: 1px solid #1f2a3d;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #0b1220;
+}
+
+.live-price-primary {
+  border-right: 1px solid #1f2a3d;
+  padding: 10px 12px;
+  background: rgba(0, 212, 255, 0.05);
+}
+
+.live-price-primary span,
+.live-price-metrics span {
+  color: #7f8da3;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.live-price-primary strong {
+  display: block;
+  margin-top: 7px;
+  color: #00d4ff;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 1.38rem;
+  line-height: 1;
+}
+
+.live-price-metrics {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.live-price-metrics div {
+  border-right: 1px solid #1f2a3d;
+  padding: 10px 12px;
+}
+
+.live-price-metrics div:last-child {
+  border-right: 0;
+}
+
+.live-price-metrics strong {
+  display: block;
+  margin-top: 7px;
+  color: #f5f7fb;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.live-price-panel p {
+  grid-column: 1 / -1;
+  margin: 0;
+  border-top: 1px solid #1f2a3d;
+  padding: 8px 12px;
+  color: #f5a623;
+  background: rgba(245, 166, 35, 0.06);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.metric-box {
+  min-height: 74px;
+  padding: 10px;
+}
+
+.metric-box strong {
+  display: block;
+  margin-top: 10px;
+  color: #f5f7fb;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.metric-box small {
+  display: block;
+  margin-top: 5px;
+  color: #7f8da3;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.metric-box.cyan strong {
+  color: #00d4ff;
+}
+
+.metric-box.green strong {
+  color: #00ff88;
+}
+
+.metric-box.amber strong {
+  color: #f5a623;
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1.25fr 1.1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.panel {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 46px;
+  border-bottom: 1px solid #1f2a3d;
+  padding: 8px 12px;
+}
+
+.panel-title h2 {
+  margin: 2px 0 0;
+  color: #f5f7fb;
+  font-size: 0.86rem;
+  letter-spacing: 0.08em;
+}
+
+.quote-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.quote-line span {
+  border: 1px solid #1f2a3d;
+  padding: 3px 5px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+.book-stack {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.book-section + .book-section {
+  border-top: 1px solid #1f2a3d;
+}
+
+.book-heading {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border-bottom: 1px solid #1f2a3d;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.book-heading.buy {
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.05);
+}
+
+.book-heading.sell {
+  color: #ff4560;
+  background: rgba(255, 69, 96, 0.06);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+th,
+td {
+  border-bottom: 1px solid rgba(31, 42, 61, 0.72);
+  padding: 7px 12px;
+  color: #dce6f5;
+  font-size: 0.76rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+th:first-child,
+td:first-child {
+  text-align: left;
+}
+
+th {
+  color: #7f8da3;
+  background: #08101e;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+tbody tr:hover {
+  background: rgba(0, 212, 255, 0.05);
+}
+
+.numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+.price.buy,
+.positive {
+  color: #00ff88 !important;
+}
+
+.price.sell,
+.negative {
+  color: #ff4560 !important;
+}
+
+.empty-cell {
+  padding: 22px 10px;
+  color: #7f8da3;
+  text-align: center !important;
+}
+
+.price-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 14px 12px 6px;
+}
+
+.price-display span,
+.market-stats span,
+.summary-title span {
+  color: #7f8da3;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.price-display strong {
+  color: #00d4ff;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.mini-chart {
+  display: block;
+  width: calc(100% - 20px);
+  height: 180px;
+  margin: 4px 10px 10px;
+  border: 1px solid #1f2a3d;
+  background:
+    linear-gradient(rgba(31, 42, 61, 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 42, 61, 0.45) 1px, transparent 1px),
+    #070b12;
+  background-size: 36px 26px;
+}
+
+.market-stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-top: 1px solid #1f2a3d;
+}
+
+.market-stats div {
+  border-right: 1px solid #1f2a3d;
+  padding: 9px 12px;
+}
+
+.market-stats div:last-child {
+  border-right: 0;
+}
+
+.market-stats strong {
+  display: block;
+  margin-top: 5px;
+  color: #f5f7fb;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.86rem;
+}
+
+.matching-summary {
+  border-top: 1px solid #1f2a3d;
+}
+
+.summary-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #1f2a3d;
+  padding: 8px 10px;
+}
+
+.summary-title strong {
+  color: #f5a623;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.72rem;
+}
+
+.matching-summary dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.matching-summary div {
+  border-right: 1px solid #1f2a3d;
+  border-bottom: 1px solid #1f2a3d;
+  padding: 8px 12px;
+}
+
+.matching-summary div:nth-child(2n) {
+  border-right: 0;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.trade-log .table-scroll {
+  max-height: 386px;
+  overflow-y: auto;
+}
+
+.benchmark-history table {
+  min-width: 520px;
+}
+
+.system-info dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+}
+
+.system-info div {
+  border-right: 1px solid #1f2a3d;
+  border-bottom: 1px solid #1f2a3d;
+  padding: 9px 12px;
+}
+
+.system-info div:nth-child(2n) {
+  border-right: 0;
+}
+
+dt,
+dd {
+  margin: 0;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(5, 9, 20, 0.78);
+}
+
+.architecture-modal {
+  width: min(560px, 100%);
+  border: 1px solid #1f2a3d;
+  border-radius: 4px;
+  background: #0b1220;
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.55);
+}
+
+.architecture-flow {
+  margin: 0;
+  padding: 22px;
+  color: #f5f7fb;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
+.system-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  border: 1px solid #1f2a3d;
+  border-radius: 4px;
+  padding: 8px 10px;
+  color: #7f8da3;
+  background: #0b1220;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.system-footer span:last-child {
+  color: #00ff88;
+}
+
+dd {
+  margin-top: 5px;
+  color: #f5f7fb;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 1180px) {
+  .topbar {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar-center,
+  .topbar-right {
+    justify-content: flex-start;
+  }
+
+  .symbol-form {
+    grid-template-columns: auto 92px auto;
+  }
+
+  .main-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .live-price-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .live-price-primary {
+    border-right: 0;
+    border-bottom: 1px solid #1f2a3d;
+  }
+
+  .live-price-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .trade-log {
+    grid-column: 1 / -1;
+  }
+
+  .kpi-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .terminal {
+    padding: 6px;
+  }
+
+  .topbar-left,
+  .topbar-center,
+  .topbar-right {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .topbar-center > div {
+    border-left: 0;
+    border-top: 1px solid #1f2a3d;
+    padding: 8px 0 0;
+  }
+
+  .run-button,
+  .quote-button,
+  .reset-button {
+    width: 100%;
+  }
+
+  .symbol-form {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .symbol-form input {
+    width: 100%;
+  }
+
+  .kpi-strip,
+  .main-grid,
+  .bottom-grid,
+  .market-stats,
+  .live-price-metrics,
+  .system-info dl,
+  .matching-summary dl {
+    grid-template-columns: 1fr;
+  }
+
+  .market-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .price-display {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+}

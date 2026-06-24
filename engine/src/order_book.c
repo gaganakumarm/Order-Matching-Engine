@@ -3,6 +3,7 @@
 #include "order_book.h"
 
 #define ORDER_BOOK_SNAPSHOT_PATH "data/order_book_snapshot.json"
+#define SNAPSHOT_ORDER_LIMIT 10
 
 static void removeBuyOrderAt(OrderBook *book, int order_index) {
     int index;
@@ -154,6 +155,8 @@ void printOrderBook(OrderBook *book) {
 void saveOrderBookSnapshot(OrderBook *book) {
     FILE *file;
     int index;
+    int buy_limit;
+    int sell_limit;
 
     if (book == NULL) {
         return;
@@ -164,10 +167,15 @@ void saveOrderBookSnapshot(OrderBook *book) {
         return;
     }
 
+    buy_limit = (book->buy_count < SNAPSHOT_ORDER_LIMIT) ? book->buy_count : SNAPSHOT_ORDER_LIMIT;
+    sell_limit = (book->sell_count < SNAPSHOT_ORDER_LIMIT) ? book->sell_count : SNAPSHOT_ORDER_LIMIT;
+
     fprintf(file, "{\n");
+    fprintf(file, "  \"buy_count\": %d,\n", book->buy_count);
+    fprintf(file, "  \"sell_count\": %d,\n\n", book->sell_count);
 
     fprintf(file, "  \"buy_orders\": [\n");
-    for (index = 0; index < book->buy_count; ++index) {
+    for (index = 0; index < buy_limit; ++index) {
         fprintf(file,
                 "    {\n"
                 "      \"order_id\": %d,\n"
@@ -177,12 +185,12 @@ void saveOrderBookSnapshot(OrderBook *book) {
                 book->buy_orders[index].order_id,
                 book->buy_orders[index].price,
                 book->buy_orders[index].quantity,
-                (index < book->buy_count - 1) ? "," : "");
+                (index < buy_limit - 1) ? "," : "");
     }
-    fprintf(file, "  ],\n");
+    fprintf(file, "  ],\n\n");
 
     fprintf(file, "  \"sell_orders\": [\n");
-    for (index = 0; index < book->sell_count; ++index) {
+    for (index = 0; index < sell_limit; ++index) {
         fprintf(file,
                 "    {\n"
                 "      \"order_id\": %d,\n"
@@ -192,7 +200,7 @@ void saveOrderBookSnapshot(OrderBook *book) {
                 book->sell_orders[index].order_id,
                 book->sell_orders[index].price,
                 book->sell_orders[index].quantity,
-                (index < book->sell_count - 1) ? "," : "");
+                (index < sell_limit - 1) ? "," : "");
     }
     fprintf(file, "  ]\n");
 
