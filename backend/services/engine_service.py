@@ -130,10 +130,14 @@ def get_trades() -> dict[str, Any]:
 
 def get_order_book_snapshot() -> dict[str, Any]:
     if ORDER_BOOK_SNAPSHOT_JSON.exists():
+        snapshot = json.loads(ORDER_BOOK_SNAPSHOT_JSON.read_text(encoding="utf-8"))
+        snapshot.setdefault("buy_count", len(snapshot.get("buy_orders", [])))
+        snapshot.setdefault("sell_count", len(snapshot.get("sell_orders", [])))
+
         return {
             "success": True,
             "format": "json",
-            "snapshot": json.loads(ORDER_BOOK_SNAPSHOT_JSON.read_text(encoding="utf-8")),
+            "snapshot": snapshot,
         }
 
     if ORDER_BOOK_SNAPSHOT_CSV.exists():
