@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import json
 import math
+import platform
 import random
 import re
 import subprocess
@@ -14,7 +15,8 @@ from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 ENGINE_DIR = PROJECT_ROOT / "engine"
-ENGINE_EXE = ENGINE_DIR / "order_matching_engine.exe"
+WINDOWS_ENGINE_EXE = ENGINE_DIR / "order_matching_engine.exe"
+UNIX_ENGINE_EXE = ENGINE_DIR / "order_matching_engine"
 ORDERS_LARGE_CSV = ENGINE_DIR / "data" / "orders_large.csv"
 BENCHMARK_CSV = ENGINE_DIR / "benchmark" / "benchmark.csv"
 TRADES_CSV = ENGINE_DIR / "data" / "trades.csv"
@@ -52,6 +54,13 @@ def _sync_trade_csv_if_needed() -> None:
     if NESTED_TRADES_CSV.exists():
         TRADES_CSV.parent.mkdir(parents=True, exist_ok=True)
         TRADES_CSV.write_text(NESTED_TRADES_CSV.read_text(encoding="utf-8"), encoding="utf-8")
+
+
+def _get_engine_executable() -> Path:
+    if platform.system().lower() == "windows":
+        return WINDOWS_ENGINE_EXE
+
+    return UNIX_ENGINE_EXE
 
 
 def generate_market_orders(symbol: str, base_price: float, count: int = 10000) -> dict[str, Any]:
@@ -106,16 +115,22 @@ def generate_market_orders(symbol: str, base_price: float, count: int = 10000) -
 
 
 def run_engine() -> dict[str, Any]:
-    if not ENGINE_EXE.exists():
+    engine_exe = _get_engine_executable()
+    if not engine_exe.exists():
         return {
             "success": False,
-            "message": "Compiled engine executable not found. Compile the C engine first.",
-            "expected_path": str(ENGINE_EXE),
+            "message": (
+                "Compiled engine executable not found. "
+                "On Windows, compile engine/order_matching_engine.exe. "
+                "On Linux/Render, run backend/build_engine.sh to compile engine/order_matching_engine."
+            ),
+            "expected_path": str(engine_exe),
+            "platform": platform.system(),
         }
 
     try:
         result = subprocess.run(
-            [str(ENGINE_EXE)],
+            [str(engine_exe)],
             cwd=ENGINE_DIR,
             capture_output=True,
             text=True,
