@@ -18,5 +18,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.get("/")
+def root() -> dict[str, str]:
+    return {
+        "service": "order-matching-engine",
+        "status": "running",
+        "docs": "/docs",
+        "health": "/health",
+    }
+
+
 app.include_router(engine_router)
 app.include_router(market_router)
