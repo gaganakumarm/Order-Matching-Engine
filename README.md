@@ -47,7 +47,7 @@ The workflow is:
 
 ![System Architecture](docs/diagrams/architecture.png)
 
-## Workflow
+## Userflow
 
 ![User Flow](docs/diagrams/userflow.png)
 
@@ -258,6 +258,36 @@ http://localhost:5173
 2. Click `Fetch Live Price`.
 3. Click `Run Market Simulation`.
 4. Review generated trades, order book rows, and benchmark metrics.
+
+## Screenshots
+
+### React Dashboard
+
+![React Dashboard](docs/screenshots/React%20Dashboard.png)
+
+### Live Price Fetched
+
+![Live Price Fetched](docs/screenshots/Live%20Price%20Fetched.png)
+
+### Run Market Simulation
+
+![Run Market Simulation](docs/screenshots/Run%20Market%20Simulation.png)
+
+### Order Activity and Trade Log
+
+![Order Activity and Trade Log](docs/screenshots/Order_Activity_Trade.png)
+
+### Benchmark System Information
+
+![Benchmark System Information](docs/screenshots/BenchMark_systeminfo.png)
+
+### Compile C Engine
+
+![Compile C Engine](docs/screenshots/Compile%20C%20Engine.png)
+
+### Swagger Docs
+
+![Swagger Docs](docs/screenshots/Swaggerdocs.png)
 
 ## Benchmark Results
 

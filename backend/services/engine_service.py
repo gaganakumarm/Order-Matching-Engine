@@ -122,7 +122,7 @@ def run_engine() -> dict[str, Any]:
             "message": (
                 "Compiled engine executable not found. "
                 "On Windows, compile engine/order_matching_engine.exe. "
-                "On Linux/Render, run backend/build_engine.sh to compile engine/order_matching_engine."
+                "On Linux, run backend/build_engine.sh to compile engine/order_matching_engine."
             ),
             "expected_path": str(engine_exe),
             "platform": platform.system(),
